@@ -1,0 +1,46 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Stores user account information and roles.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "phone": { "type": "string", "description": "User phone number" },
+        "role": { "type": "string", "enum": ["Owner", "Manager"], "description": "Access level" },
+        "assignedProperty": { "type": "string", "description": "Property assigned to Manager" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "phone", "role"]
+    },
+    "Report": {
+      "title": "Meeting Report",
+      "description": "Operational intelligence report generated from audio.",
+      "type": "object",
+      "properties": {
+        "property": { "type": "string" },
+        "title": { "type": "string" },
+        "date": { "type": "string" },
+        "summary": { "type": "string" },
+        "tasks": { "type": "array", "items": { "type": "object" } },
+        "guestExperienceInsights": { "type": "array", "items": { "type": "object" } },
+        "serviceIssues": { "type": "array", "items": { "type": "string" } },
+        "maintenanceUpdates": { "type": "array", "items": { "type": "string" } },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "authorUid": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["property", "title", "authorUid"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "User profiles indexed by UID"
+    },
+    "/reports/{reportId}": {
+      "schema": "Report",
+      "description": "Operational reports"
+    }
+  }
+}

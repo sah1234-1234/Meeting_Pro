@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-bs-primary: #4f46e5; /* Indigo 600 */
+  --color-bs-secondary: #64748b; /* Slate 500 */
+  --color-bs-success: #10b981; /* Emerald 500 */
+  --color-bs-danger: #ef4444; /* Red 500 */
+  --color-bs-warning: #f59e0b; /* Amber 500 */
+  --color-bs-info: #06b6d4; /* Cyan 500 */
+  --color-bs-light: #f8fafc;
+  --color-bs-dark: #0f172a; /* Slate 900 */
+  
+  --color-admin-sidebar: #0f172a;
+  --color-admin-bg: #f8fafc;
+}
+
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  .glass-panel {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+  }
+
+  .premium-card {
+    @apply bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300;
+  }
+
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+body {
+  @apply bg-admin-bg text-slate-900 antialiased;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+h1, h2, h3, h4 {
+  @apply font-display tracking-tight;
+}
+
+.card {
+  @apply bg-white border border-slate-200/60 rounded-xl shadow-sm overflow-hidden;
+}
+
+.btn-primary {
+  @apply bg-bs-primary text-white px-5 py-2.5 rounded-lg font-medium hover:bg-indigo-700 active:scale-[0.98] transition-all shadow-sm shadow-indigo-200;
+}
+
+.btn-secondary {
+  @apply bg-white text-slate-700 border border-slate-200 px-5 py-2.5 rounded-lg font-medium hover:bg-slate-50 active:scale-[0.98] transition-all;
+}
+
+.nav-item-active {
+  @apply bg-indigo-50 text-indigo-600 border-r-2 border-indigo-600;
+}

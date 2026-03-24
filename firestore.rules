@@ -1,0 +1,136 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {uid}
+    // Fields:
+    //   - uid: string (required) - Firebase Auth UID
+    //   - phone: string (required) - User phone number
+    //   - role: string (required, ['Owner', 'Manager']) - Access level
+    //   - assignedProperty: string (optional) - Property assigned to Manager
+    //   - createdAt: string (format: date-time)
+    //
+    // Collection: reports
+    // Document ID: {reportId}
+    // Fields:
+    //   - property: string (required) - Property name
+    //   - title: string (required) - Report title
+    //   - date: string - Report date
+    //   - summary: string - Report summary
+    //   - tasks: list - Array of task objects
+    //   - guestExperienceInsights: list - Array of insight objects
+    //   - serviceIssues: list - Array of strings
+    //   - maintenanceUpdates: list - Array of strings
+    //   - tags: list - Array of strings
+    //   - authorUid: string (required) - UID of the creator
+    //   - createdAt: string (format: date-time)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        getUserData().role == 'Owner' ||
+        (request.auth.token.email == "mohammadsahilbehna@gmail.com" && request.auth.token.email_verified == true)
+      );
+    }
+
+    function isManager() {
+      return isAuthenticated() && getUserData().role == 'Manager';
+    }
+
+    function getAssignedProperty() {
+      return getUserData().assignedProperty;
+    }
+
+    // Validation Helpers
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function isValidUser(data) {
+      let validProperties = [
+        'Sukoon Nisarg Resort',
+        'Sukoon Resort',
+        'Ice on Fire',
+        'Sukoon City View Hotel',
+        'Sukoon Pearll Inn',
+        'Sukoon Signature',
+        'Sukoon Grandeur',
+        'Sukoon Prestige Palace'
+      ];
+      return data.keys().hasOnly(['uid', 'phone', 'role', 'assignedProperty', 'createdAt']) &&
+             data.uid is string && data.uid.size() > 0 &&
+             data.phone is string && data.phone.size() >= 10 &&
+             data.role in ['Owner', 'Manager'] &&
+             (data.assignedProperty == null || data.assignedProperty in validProperties);
+    }
+
+    function isValidReport(data) {
+      let validProperties = [
+        'Sukoon Nisarg Resort',
+        'Sukoon Resort',
+        'Ice on Fire',
+        'Sukoon City View Hotel',
+        'Sukoon Pearll Inn',
+        'Sukoon Signature',
+        'Sukoon Grandeur',
+        'Sukoon Prestige Palace'
+      ];
+      return data.keys().hasAll(['property', 'title', 'authorUid']) &&
+             data.property in validProperties &&
+             data.property is string && data.property.size() > 0 &&
+             data.title is string && data.title.size() > 0 &&
+             data.authorUid == request.auth.uid;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      // Users can read their own profile
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Users can create their own profile on signup
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+
+      // Only admins can update roles
+      allow update: if isAdmin() && isValidUser(request.resource.data);
+    }
+
+    match /reports/{reportId} {
+      // All authenticated users can read all reports
+      allow read: if isAuthenticated();
+
+      // Any authenticated user can create a report for any property
+      allow create: if isAuthenticated() && isValidReport(request.resource.data);
+
+      // Only the author or an admin can delete
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.authorUid == request.auth.uid);
+      
+      // No updates for now to maintain integrity
+      allow update: if false;
+    }
+  }
+}

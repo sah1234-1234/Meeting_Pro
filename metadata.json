@@ -1,0 +1,5 @@
+{
+  "name": "Sukoon Meeting Agent",
+  "description": "AI-powered meeting minute generator for Sukoon Infracon Limited, filtering noise and focusing on key issues, works, and events.",
+  "requestFramePermissions": []
+}
